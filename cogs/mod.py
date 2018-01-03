@@ -20,7 +20,7 @@ class Mod:
     async def on_member_join(self, member):
         async with self.bot.db_pool.acquire() as con:
             ban = await con.fetchrow('''
-                SELECT * FROM ban WHERE user_id = $1
+                SELECT * FROM bans WHERE user_id = $1
                 ''', member.id)
         try:
             if ban['user_id'] is not None:
@@ -48,6 +48,10 @@ class Mod:
             await ctx.send('**{0.name}** is already banned.'.format(user), delete_after=15)
         else:
             await ctx.send("Banned user {0.name}({0.id}) due to **{1}**.".format(user, reason))
+            for guild in self.bot.guilds:
+                m = guild.get_member(user.id)
+                if m is not None:
+                    await m.ban(reason=reason)
 
 ###################
 #                 #
@@ -58,15 +62,20 @@ class Mod:
     @checks.db
     @commands.is_owner()
     @commands.command(name='unban', aliases=['unfuck'])
-    async def user_unban(self, ctx, user: int, reason: str='Appealed.'):
+    async def user_unban(self, ctx, user_id: int, reason: str='Appealed.'):
         """Removes a user from the bot's banlist"""
         async with ctx.con.transaction():
             res = await ctx.con.execute('''
                 DELETE FROM bans WHERE user_id = $1
-                ''', user)
+                ''', user_id)
         deleted = int(res.split()[-1])
         if deleted:
-            await user.ban(reason=reason)
+            user = await self.bot.get_user_info(user_id)
+            for guild in self.bot.guilds:
+                try:
+                    await guild.unban(user)
+                except discord.HTTPException:
+                    pass
             await ctx.send("Unbanned user {0} due to **{1}**.".format(user, reason))
         else:
             await ctx.send('**{0}** is not banned.'.format(user), delete_after=15)
