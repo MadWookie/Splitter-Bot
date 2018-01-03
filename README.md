@@ -8,4 +8,4 @@
 * **[Langinator]** - *Developer*
 
 [MadWookie]: https://github.com/MadWookie
-[Langinator]: https://github.com/
+[Langinator]: https://github.com/Langinator3
