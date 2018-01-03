@@ -1,4 +1,5 @@
 import traceback
+import asyncpg
 import discord
 import asyncio
 import json
@@ -101,11 +102,12 @@ class SplitterBot(commands.Bot):
 formatter = commands.HelpFormatter(show_check_failure=True)
 
 initial_extensions = [f'cogs.{ext}' for ext in
-                      ('help', 'utility',)]
+                      ('help', 'utility', 'mod',)]
 
 description = 'Splitter Bot - Created by MadWookie & Langinator3.'
 bot = SplitterBot(command_prefix=['!'], description=description, formatter=formatter, request_offline_members=True)
 bot.ready = False
+bot.db_pool = bot.loop.run_until_complete(asyncpg.create_pool(config.dsn, init=set_codecs))
 
 for ext in initial_extensions:
     try:
