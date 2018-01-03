@@ -37,7 +37,7 @@ class Mod:
     @checks.db
     @commands.is_owner()
     @commands.command(name='ban', aliases=['fuck'])
-    async def user_ban(self, ctx, user: discord.Member, reason: str='Breaking Rules.'):
+    async def user_ban(self, ctx, user: discord.Member, reason: str='Breaking Rules'):
         """Adds a user to the bot's banlist"""
         try:
             async with ctx.con.transaction():
@@ -62,7 +62,7 @@ class Mod:
     @checks.db
     @commands.is_owner()
     @commands.command(name='unban', aliases=['unfuck'])
-    async def user_unban(self, ctx, user_id: int, reason: str='Appealed.'):
+    async def user_unban(self, ctx, user_id: int, reason: str='Appealed'):
         """Removes a user from the bot's banlist"""
         async with ctx.con.transaction():
             res = await ctx.con.execute('''
